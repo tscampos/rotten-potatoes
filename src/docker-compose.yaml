@@ -1,0 +1,49 @@
+version: '3.8' #https://docs.docker.com/compose/compose-file/compose-versioning/
+
+volumes:
+  mongo_vol:
+
+networks:
+  mongo_net:
+    driver: bridge
+
+services:
+
+  app:
+    image: tscampos/rotten-potatoes:v1
+    build:
+      dockerfile: dockerfile
+      context: ./ 
+    ports:
+    - 5000:5000
+
+  mongodb:
+    image: mongo
+    ports:
+    - 27017:27017
+    networks:
+     - mongo_net
+    volumes:
+     - mongo_vol:/data/db
+    environment:
+      MONGODB_DB: admin
+      MONGODB_HOST: h_mongo
+      MONGODB_PORT: '27017'
+      MONGODB_USERNAME: tscampos
+      MONGODB_PASSWORD: tscampos@123
+
+
+  mongo-express:
+    image: mongo-express
+    ports:
+     - 8081:8081
+    networks:
+     - mongo_net
+    depends_on:
+     - mongodb
+    environment:
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: 'false'
+      ME_CONFIG_MONGODB_AUTH_DATABASE: db
+      ME_CONFIG_MONGODB_AUTH_USERNAME: admin
+      ME_CONFIG_MONGODB_AUTH_PASSWORD: pass
+      ME_CONFIG_MONGODB_URL: mongodb://admin:example@mongodb:27017
