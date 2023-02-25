@@ -1,18 +1,25 @@
-# Use root/example as user/password credentials
 version: '3.1'
 
 
 services:
 
   app:
-    image: tscampos/rotten-potatoes:v3
+    image: tscampos/rotten-potatoes:v1
     build:
      dockerfile: dockerfile
-     context: ./ 
+     context: ./
+    restart: always
     depends_on:
     - mongo
     ports:
     - 5000:5000
+    environment:
+      MONGODB_DB: admin
+      MONGODB_HOST: mongo
+      MONGODB_PORT: "27017"
+      MONGODB_USERNAME: mongouser
+      MONGODB_PASSWORD: mongopwd
+
 
   mongo:
     image: mongo
@@ -22,20 +29,15 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongouser
       MONGO_INITDB_ROOT_PASSWORD: mongopwd
-      MONGODB_DB: admin
-      MONGODB_HOST: localhost
-      MONGODB_PORT: '27017'
-      MONGODB_USERNAME: root
-      MONGODB_PASSWORD: example
 
   mongo-express:
     image: mongo-express
     restart: always
     ports:
       - 8081:8081
+    depends_on:
+    - mongo
     environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: mongouser
-      ME_CONFIG_MONGODB_ADMINPASSWORD: mongopwd
       ME_CONFIG_MONGODB_URL: mongodb://mongouser:mongopwd@mongo:27017/
 
       # version: '3.1' #https://docs.docker.com/compose/compose-file/compose-versioning/
